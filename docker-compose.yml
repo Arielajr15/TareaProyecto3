@@ -1,11 +1,11 @@
 services:
   postgres:
     image: postgres:16
-    container_name: postgres_db
+    container_name: tarea_proyecto3
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: tareaProyecto3
     ports:
       - "5432:5432"
     volumes:

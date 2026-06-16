@@ -1,4 +1,17 @@
 package org.example.tareaproyecto3.logic.rol;
 
-public class RoleEnum {
+public enum RoleEnum {
+
+    SUPER_ADMIN_ROLE("SUPER-ADMIN-ROLE"),
+    USER("USER");
+
+    private final String authority;
+
+    RoleEnum(String authority) {
+        this.authority = authority;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
 }
