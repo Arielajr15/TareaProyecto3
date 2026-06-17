@@ -17,19 +17,23 @@ public class CategoriaService {
     private final CategoriaRepository categoriaRepository;
     private final ProductoRepository productoRepository;
 
-    public CategoriaService(CategoriaRepository categoriaRepository, ProductoRepository productoRepository
+    public CategoriaService(
+            CategoriaRepository categoriaRepository,
+            ProductoRepository productoRepository
     ) {
         this.categoriaRepository = categoriaRepository;
         this.productoRepository = productoRepository;
     }
 
-    public Categoria crearCategoria(CategoriaDTO categoriaDTO) {
+    public ResponseEntity<CategoriaDTO> crearCategoria(CategoriaDTO categoriaDTO) {
         Categoria categoria = new Categoria();
-
         categoria.setNombre(categoriaDTO.getNombre());
         categoria.setDescripcion(categoriaDTO.getDescripcion());
 
-        return categoriaRepository.save(categoria);
+        Categoria categoriaGuardada = categoriaRepository.save(categoria);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(convertirCategoriaADTO(categoriaGuardada));
     }
 
     public ResponseEntity<List<CategoriaDTO>> listarCategorias() {
@@ -42,26 +46,23 @@ public class CategoriaService {
     }
 
     public ResponseEntity<CategoriaDTO> buscarCategoriaPorId(Long id) {
-        Optional<Categoria> categoria = categoriaRepository.findById(id);
+        Optional<Categoria> unaCategoria = categoriaRepository.findById(id);
 
-        if (categoria.isEmpty()) {
+        if (unaCategoria.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        CategoriaDTO categoriaDTO = convertirCategoriaADTO(categoria.get());
-
-        return ResponseEntity.ok(categoriaDTO);
+        return ResponseEntity.ok(convertirCategoriaADTO(unaCategoria.get()));
     }
 
     public ResponseEntity<CategoriaDTO> actualizarCategoria(Long id, CategoriaDTO categoriaDTO) {
-        Optional<Categoria> categoriaEncontrada = categoriaRepository.findById(id);
+        Optional<Categoria> unaCategoria = categoriaRepository.findById(id);
 
-        if (categoriaEncontrada.isEmpty()) {
+        if (unaCategoria.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        Categoria categoria = categoriaEncontrada.get();
-
+        Categoria categoria = unaCategoria.get();
         categoria.setNombre(categoriaDTO.getNombre());
         categoria.setDescripcion(categoriaDTO.getDescripcion());
 
@@ -71,11 +72,11 @@ public class CategoriaService {
     }
 
     public ResponseEntity<String> eliminarCategoria(Long id) {
-        Optional<Categoria> categoriaEncontrada = categoriaRepository.findById(id);
+        Optional<Categoria> unaCategoria = categoriaRepository.findById(id);
 
-        if (categoriaEncontrada.isEmpty()) {
+        if (unaCategoria.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No existe una categoría con el id: " + id);
+                    .body("Esa categoría no existe");
         }
 
         long productosAsociados = productoRepository.countByCategoriaId(id);
@@ -85,14 +86,13 @@ public class CategoriaService {
                     .body("No se puede eliminar la categoría porque tiene productos asociados");
         }
 
-        categoriaRepository.deleteById(id);
+        categoriaRepository.delete(unaCategoria.get());
 
         return ResponseEntity.ok("Categoría eliminada correctamente");
     }
 
     private CategoriaDTO convertirCategoriaADTO(Categoria categoria) {
         CategoriaDTO categoriaDTO = new CategoriaDTO();
-
         categoriaDTO.setId(categoria.getId());
         categoriaDTO.setNombre(categoria.getNombre());
         categoriaDTO.setDescripcion(categoria.getDescripcion());

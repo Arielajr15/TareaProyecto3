@@ -1,6 +1,5 @@
 package org.example.tareaproyecto3.logic.controller;
 
-
 import org.example.tareaproyecto3.logic.models.dtos.ProductoDTO;
 import org.example.tareaproyecto3.logic.models.entities.Producto;
 import org.example.tareaproyecto3.logic.service.ProductoService;
@@ -21,8 +20,8 @@ public class ProductoController {
     }
 
     @PostMapping("/")
-    @PreAuthorize("hasAuthority('SUPER-ADMIN-ROLE')")
-    public Producto crearProducto(@RequestBody ProductoDTO productoDTO) {
+    @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
+    public ResponseEntity<?> crearProducto(@RequestBody ProductoDTO productoDTO) {
         return productoService.crearProducto(productoDTO);
     }
 
@@ -39,8 +38,8 @@ public class ProductoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER-ADMIN-ROLE')")
-    public ResponseEntity<ProductoDTO> actualizarProducto(
+    @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
+    public ResponseEntity<?> actualizarProducto(
             @PathVariable Long id,
             @RequestBody ProductoDTO productoDTO
     ) {
@@ -48,7 +47,7 @@ public class ProductoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER-ADMIN-ROLE')")
+    @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
     public ResponseEntity<String> eliminarProducto(@PathVariable Long id) {
         return productoService.eliminarProducto(id);
     }

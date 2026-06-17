@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -31,22 +32,27 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(authorize -> authorize
 
-                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/producto/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/categoria/**").authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/api/producto/**").hasAuthority("SUPER-ADMIN-ROLE")
-                        .requestMatchers(HttpMethod.PUT, "/api/producto/**").hasAuthority("SUPER-ADMIN-ROLE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/producto/**").hasAuthority("SUPER-ADMIN-ROLE")
+                        .requestMatchers(HttpMethod.POST, "/api/producto/**").hasRole("SUPER_ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.PUT, "/api/producto/**").hasRole("SUPER_ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/producto/**").hasRole("SUPER_ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/producto/**").hasRole("SUPER_ADMIN_ROLE")
 
-                        .requestMatchers(HttpMethod.POST, "/api/categoria/**").hasAuthority("SUPER-ADMIN-ROLE")
-                        .requestMatchers(HttpMethod.PUT, "/api/categoria/**").hasAuthority("SUPER-ADMIN-ROLE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/categoria/**").hasAuthority("SUPER-ADMIN-ROLE")
+                        .requestMatchers(HttpMethod.POST, "/api/categoria/**").hasRole("SUPER_ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.PUT, "/api/categoria/**").hasRole("SUPER_ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/categoria/**").hasRole("SUPER_ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categoria/**").hasRole("SUPER_ADMIN_ROLE")
 
                         .anyRequest().authenticated()
                 )

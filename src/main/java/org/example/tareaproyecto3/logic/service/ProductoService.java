@@ -18,28 +18,33 @@ public class ProductoService {
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
 
-    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository
+    public ProductoService(
+            ProductoRepository productoRepository,
+            CategoriaRepository categoriaRepository
     ) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
     }
 
-    public Producto crearProducto(ProductoDTO productoDTO) {
-        Optional<Categoria> categoriaEncontrada = categoriaRepository.findById(productoDTO.getCategoria());
+    public ResponseEntity<?> crearProducto(ProductoDTO productoDTO) {
+        Optional<Categoria> categoria = categoriaRepository.findById(productoDTO.getCategoria());
 
-        if (categoriaEncontrada.isEmpty()) {
-            return null;
+        if (categoria.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Esa categoría no existe");
         }
 
         Producto producto = new Producto();
-
         producto.setNombre(productoDTO.getNombre());
         producto.setDescripcion(productoDTO.getDescripcion());
         producto.setPrecio(productoDTO.getPrecio());
         producto.setCantidadStock(productoDTO.getCantidadStock());
-        producto.setCategoria(categoriaEncontrada.get());
+        producto.setCategoria(categoria.get());
 
-        return productoRepository.save(producto);
+        Producto productoGuardado = productoRepository.save(producto);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productoGuardado);
     }
 
     public ResponseEntity<List<ProductoDTO>> listarProductos() {
@@ -58,26 +63,25 @@ public class ProductoService {
             return ResponseEntity.notFound().build();
         }
 
-        ProductoDTO productoDTO = convertirProductoADTO(producto.get());
-
-        return ResponseEntity.ok(productoDTO);
+        return ResponseEntity.ok(convertirProductoADTO(producto.get()));
     }
 
-    public ResponseEntity<ProductoDTO> actualizarProducto(Long id, ProductoDTO productoDTO) {
+    public ResponseEntity<?> actualizarProducto(Long id, ProductoDTO productoDTO) {
         Optional<Producto> productoEncontrado = productoRepository.findById(id);
 
         if (productoEncontrado.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ese producto no existe");
         }
 
         Optional<Categoria> categoriaEncontrada = categoriaRepository.findById(productoDTO.getCategoria());
 
         if (categoriaEncontrada.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Esa categoría no existe");
         }
 
         Producto producto = productoEncontrado.get();
-
         producto.setNombre(productoDTO.getNombre());
         producto.setDescripcion(productoDTO.getDescripcion());
         producto.setPrecio(productoDTO.getPrecio());
@@ -86,18 +90,18 @@ public class ProductoService {
 
         Producto productoActualizado = productoRepository.save(producto);
 
-        return ResponseEntity.ok(convertirProductoADTO(productoActualizado));
+        return ResponseEntity.ok(productoActualizado);
     }
 
     public ResponseEntity<String> eliminarProducto(Long id) {
-        Optional<Producto> productoEncontrado = productoRepository.findById(id);
+        Optional<Producto> producto = productoRepository.findById(id);
 
-        if (productoEncontrado.isEmpty()) {
+        if (producto.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No existe un producto con el id: " + id);
+                    .body("Ese producto no existe");
         }
 
-        productoRepository.deleteById(id);
+        productoRepository.delete(producto.get());
 
         return ResponseEntity.ok("Producto eliminado correctamente");
     }

@@ -1,8 +1,6 @@
 package org.example.tareaproyecto3.logic.controller;
 
-
 import org.example.tareaproyecto3.logic.models.dtos.CategoriaDTO;
-import org.example.tareaproyecto3.logic.models.entities.Categoria;
 import org.example.tareaproyecto3.logic.service.CategoriaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,8 +19,8 @@ public class CategoriaController {
     }
 
     @PostMapping("/")
-    @PreAuthorize("hasAuthority('SUPER-ADMIN-ROLE')")
-    public Categoria crearCategoria(@RequestBody CategoriaDTO categoriaDTO) {
+    @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
+    public ResponseEntity<CategoriaDTO> crearCategoria(@RequestBody CategoriaDTO categoriaDTO) {
         return categoriaService.crearCategoria(categoriaDTO);
     }
 
@@ -39,7 +37,7 @@ public class CategoriaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER-ADMIN-ROLE')")
+    @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
     public ResponseEntity<CategoriaDTO> actualizarCategoria(
             @PathVariable Long id,
             @RequestBody CategoriaDTO categoriaDTO
@@ -48,7 +46,7 @@ public class CategoriaController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER-ADMIN-ROLE')")
+    @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
     public ResponseEntity<String> eliminarCategoria(@PathVariable Long id) {
         return categoriaService.eliminarCategoria(id);
     }
